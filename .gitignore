@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+target/
+*.wasm
+*.json.gz
+
+# Noir
+circuits/**/target/
+circuits/**/proofs/
+
+# Soroban
+contracts/**/target/
+contracts/escrow_verifier/test_fixtures/
+.soroban/
+.toolchain/
+
+# Next.js demo
+demo/.next/
+demo/out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs & coverage
+*.log
+coverage/
+.nyc_output/
+
+# Test artifacts
+*.prooftoml

@@ -1,0 +1,19 @@
+{
+  "name": "safetrust-zk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zero-knowledge privacy layer for SafeTrust escrow on Stellar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test && make test-circuits",
+    "test:all": "make test-all",
+    "compile:circuits": "make compile-all",
+    "lint": "pnpm -r lint"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
