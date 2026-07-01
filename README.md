@@ -154,7 +154,8 @@ safetrust-zk/
 |---|---|---|
 | Node.js | ≥ 18 | [nodejs.org](https://nodejs.org) |
 | pnpm | ≥ 9 | `npm i -g pnpm` |
-| Nargo (Noir) | ≥ 0.30 | [noir-lang.org](https://noir-lang.org/docs/getting_started/installation) |
+| Nargo (Noir) | ≥ 0.30 | `noirup` — [noir-lang.org](https://noir-lang.org/docs/getting_started/installation) |
+| Barretenberg (`bb`) | matches nargo | `bbup` (after `noirup`) — [Barretenberg docs](https://barretenberg.aztec.network/docs/getting_started/) |
 | Rust + Cargo | stable | [rustup.rs](https://rustup.rs) |
 | Stellar CLI | latest | [stellar.org/docs](https://developers.stellar.org/docs/tools/stellar-cli) |
 
@@ -186,27 +187,18 @@ cd ../milestone_release   && nargo compile
 
 ### Generate a test proof locally
 
+Noir 1.0 uses `nargo execute` for witnesses and `bb` for proving/verification:
+
 ```bash
-# Circuit 1 — Proof of Funds
+# Circuit 1 — Proof of Funds (or: make prove-proof-of-funds)
 cd circuits/proof_of_funds
-nargo prove
-
-# Circuit 2 — Private Escrow
-cd circuits/private_escrow
-nargo prove
-
-# Circuit 3 — Milestone Release
-cd circuits/milestone_release
-nargo prove
+nargo compile && nargo execute
+bb prove --oracle_hash keccak \
+  -b ./target/proof_of_funds.json -w ./target/proof_of_funds.gz --write_vk -o ./target
+bb verify --oracle_hash keccak -p ./target/proof -k ./target/vk
 ```
 
 Test inputs for each circuit live in `circuits/<name>/Prover.toml`.
-
-### Verify a proof
-
-```bash
-nargo verify
-```
 
 ---
 
@@ -319,8 +311,8 @@ This is confidentiality, not opacity — exactly what hospitality businesses nee
 | Layer | Technology |
 |---|---|
 | ZK Circuits | [Noir](https://noir-lang.org) (Barretenberg / UltraPlonk) |
-| Proof verification | Groth16-compatible, Stellar BN254 precompiles |
-| On-chain verifier | Soroban smart contract (Rust) |
+| Proof verification | UltraHonk via Barretenberg (`bb`), Stellar BN254 precompiles |
+| On-chain verifier | Soroban UltraHonk verifier ([rs-soroban-ultrahonk](https://github.com/yugocabrio/rs-soroban-ultrahonk)) |
 | SDK | TypeScript — `@noir-lang/noir_js`, `@aztec/bb.js` |
 | Demo frontend | Next.js 14 |
 | Blockchain | Stellar Testnet |

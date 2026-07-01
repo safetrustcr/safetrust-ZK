@@ -1,0 +1,5 @@
+amount = "10000000000"
+randomness = "77"
+view_key = "42"
+guest_addr = "1"
+host_addr = "2"

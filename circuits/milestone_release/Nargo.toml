@@ -1,0 +1,7 @@
+[package]
+name = "milestone_release"
+type = "bin"
+authors = ["SafeTrust"]
+compiler_version = ">=0.30.0"
+
+[dependencies]
