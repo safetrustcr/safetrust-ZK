@@ -12,11 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install
       - run: pnpm --filter @safetrust/zk-sdk build
@@ -29,12 +27,14 @@ jobs:
       - name: Install Noir
         run: |
           curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
-          echo "$HOME/.nargo/bin" >> $GITHUB_PATH
-          noirup
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.nargo/bin:$PATH"
+          noirup -v 1.0.0-beta.22
       - name: Install Barretenberg
         run: |
           curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install | bash
-          echo "$HOME/.bb" >> $GITHUB_PATH
+          echo "$HOME/.bb" >> "$GITHUB_PATH"
+          export PATH="$HOME/.bb:$PATH"
           bbup
       - name: Compile all circuits
         run: make compile-all
@@ -43,13 +43,12 @@ jobs:
       - name: Smoke test proof_of_funds prove/verify
         run: make prove-proof-of-funds
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install
+      - run: pnpm --filter @safetrust/zk-sdk build
       - run: pnpm --filter @safetrust/zk-sdk test
 
   soroban:
@@ -60,7 +59,8 @@ jobs:
       - name: Install Noir (beta.9 for Stellar fixtures)
         run: |
           curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
-          echo "$HOME/.nargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.nargo/bin:$PATH"
           noirup -v 1.0.0-beta.9
       - name: Build Stellar verifier fixtures
         run: make prepare-verifier-fixtures
