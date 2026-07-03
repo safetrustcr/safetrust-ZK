@@ -393,3 +393,1055 @@ code {
     transform: rotate(360deg);
   }
 }
+
+/* ── Apartment cards ───────────────────────────────────────────────────── */
+.apt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.apt-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.1s;
+}
+
+.apt-card:hover {
+  border-color: var(--border);
+  background: rgba(139, 92, 246, 0.04);
+}
+
+.apt-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.apt-card-selected {
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.apt-image {
+  font-size: 2.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.2rem;
+}
+
+.apt-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.apt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.apt-name {
+  margin: 0 0 0.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.apt-location {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.apt-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.apt-price-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.apt-price-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 0.2rem;
+}
+
+.apt-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.apt-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.apt-total {
+  color: var(--text);
+}
+
+.apt-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.amenity-tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+
+.apt-host {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.host-label {
+  color: var(--text-muted);
+}
+
+.host-name {
+  font-weight: 600;
+}
+
+.host-address {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ── Wallet confirmed ──────────────────────────────────────────────────── */
+.wallet-confirmed {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--success);
+}
+
+.seeded-balance {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ── Booking summary bar ───────────────────────────────────────────────── */
+.booking-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.booking-amount {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.zk-hidden {
+  color: var(--accent);
+  cursor: help;
+}
+
+/* ── Step error state ──────────────────────────────────────────────────── */
+.step-error {
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.step-error .step-num {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--danger);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+/* ── Milestone divider ─────────────────────────────────────────────────── */
+.milestone-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.milestone-divider::before,
+.milestone-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* ── Receipt CTA ───────────────────────────────────────────────────────── */
+.receipt-cta {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.btn-receipt {
+  color: #fff;
+  background: linear-gradient(135deg, #06b6d4, #7c3aed);
+  box-shadow: 0 2px 16px rgba(6, 182, 212, 0.3);
+  padding: 0.65rem 1.4rem;
+  font-size: 0.95rem;
+}
+
+.btn-receipt-complete {
+  background: linear-gradient(135deg, #10b981, #7c3aed);
+  box-shadow: 0 2px 16px rgba(16, 185, 129, 0.35);
+}
+
+.mock-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ── Receipt Modal ─────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  margin: 0.35rem 0 0.15rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.modal-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+
+.receipt-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.receipt-section:last-of-type {
+  border-bottom: none;
+}
+
+.receipt-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.zk-lock {
+  font-size: 1rem;
+}
+
+.receipt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.receipt-row > span:first-child {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.hash-val {
+  color: var(--accent);
+  word-break: break-all;
+  text-align: right;
+}
+
+.receipt-contract {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.badge-mock {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  background: rgba(251,191,36,0.15);
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 4px;
+  color: #fde68a;
+}
+
+.receipt-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.stored-label {
+  color: var(--success);
+}
+
+.hidden-label {
+  color: var(--accent);
+  margin-top: 1rem;
+}
+
+.receipt-stored {
+  background: rgba(52, 211, 153, 0.04);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-hidden {
+  background: rgba(139, 92, 246, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+}
+
+.hidden-val {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  text-align: right;
+}
+
+.receipt-zk {
+  background: rgba(139, 92, 246, 0.03);
+}
+
+/* ── Milestone status ──────────────────────────────────────────────────── */
+.milestone-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.875rem;
+}
+
+.milestone-done {
+  background: rgba(52, 211, 153, 0.06);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.milestone-pending {
+  background: var(--bg-elevated);
+  opacity: 0.7;
+}
+
+.milestone-item p {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.milestone-item b {
+  font-size: 0.875rem;
+}
+
+/* ── Modal footer ──────────────────────────────────────────────────────── */
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modal-footer p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  max-width: 38ch;
+}
+
+/* ── Invoice Receipt Modal (SafeTrust design language) ──────────────────── */
+.invoice-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.invoice-modal {
+  background: #ffffff;
+  color: #1a1a2e;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 100px rgba(0,0,0,0.7);
+  font-family: var(--font);
+}
+
+/* ── Invoice header bar ──────────────────────────────────────────────────── */
+.inv-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e8e8f0;
+}
+
+.inv-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.inv-logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.inv-close-btn {
+  background: none;
+  border: 1px solid #e0e0ea;
+  color: #6b7280;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.inv-close-btn:hover {
+  background: #f3f4f6;
+  color: #1a1a2e;
+}
+
+/* ── Invoice title row ───────────────────────────────────────────────────── */
+.inv-title-row {
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 1px solid #e8e8f0;
+}
+
+.inv-number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.inv-number {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.inv-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.badge-funded {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-released {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.badge-mock {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-zk {
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
+}
+
+.inv-paid-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* ── Two-column layout (main + sidebar) ─────────────────────────────────── */
+.inv-body {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  min-height: 0;
+}
+
+@media (max-width: 600px) {
+  .inv-body { grid-template-columns: 1fr; }
+}
+
+/* ── Main invoice content ────────────────────────────────────────────────── */
+.inv-main {
+  padding: 1.25rem 1.5rem;
+  border-right: 1px solid #e8e8f0;
+}
+
+.inv-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 1rem;
+}
+
+/* Billing grid */
+.inv-billing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 2rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.82rem;
+}
+
+.inv-billing-row {
+  display: contents;
+}
+
+.inv-billing-label {
+  color: #6b7280;
+}
+
+.inv-billing-value {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
+/* Product table */
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+.inv-table th {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #374151;
+}
+
+.inv-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.65rem 0.75rem;
+  color: #374151;
+}
+
+.inv-table tr:hover td {
+  background: #f9fafb;
+}
+
+.inv-apt-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inv-apt-thumb {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.inv-apt-name {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.inv-apt-loc {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+.inv-amount-hidden {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #7c3aed;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Totals row */
+.inv-totals {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.inv-total-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.inv-total-label {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.inv-total-value {
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.inv-total-value-hidden {
+  color: #7c3aed;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ── ZK Privacy section ──────────────────────────────────────────────────── */
+.inv-zk-section {
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.inv-zk-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5b21b6;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.inv-zk-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inv-zk-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  align-items: start;
+}
+
+.inv-zk-label {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.inv-zk-value {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: #1a1a2e;
+  word-break: break-all;
+}
+
+.inv-zk-hidden-row {
+  background: #ede9fe;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: #5b21b6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+/* ── Parties section (tenant / owner) ───────────────────────────────────── */
+.inv-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 500px) {
+  .inv-parties { grid-template-columns: 1fr; }
+}
+
+.inv-party-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.85rem;
+}
+
+.inv-party-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 0.6rem;
+}
+
+.inv-party-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid #f0f0f5;
+}
+
+.inv-party-row:last-child {
+  border-bottom: none;
+}
+
+.inv-party-key {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.inv-party-val {
+  font-weight: 600;
+  color: #1a1a2e;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  word-break: break-all;
+}
+
+/* ── Milestone timeline ──────────────────────────────────────────────────── */
+.inv-milestones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.inv-milestone-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.8rem;
+}
+
+.inv-milestone-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.dot-done {
+  background: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
+}
+
+.dot-pending {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border: 2px solid #e5e7eb;
+}
+
+.inv-milestone-body {
+  padding-top: 0.2rem;
+}
+
+.inv-milestone-label {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.inv-milestone-detail {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-top: 0.1rem;
+}
+
+.inv-milestone-proof {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: #7c3aed;
+  margin-top: 0.1rem;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.inv-sidebar {
+  padding: 1.25rem 1rem;
+  background: #fafafa;
+  border-radius: 0 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inv-sidebar-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #374151;
+  margin: 0 0 0.6rem;
+}
+
+/* Process timeline */
+.inv-process-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.inv-process-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding-bottom: 1rem;
+  position: relative;
+}
+
+.inv-process-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 26px;
+  width: 2px;
+  height: calc(100% - 10px);
+  background: #e5e7eb;
+}
+
+.inv-process-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.process-active {
+  background: #10b981;
+  color: white;
+}
+
+.process-done {
+  background: #10b981;
+  color: white;
+}
+
+.process-pending {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border: 2px solid #e5e7eb;
+}
+
+.inv-process-text {
+  font-size: 0.75rem;
+  color: #374151;
+  padding-top: 0.3rem;
+  line-height: 1.3;
+}
+
+.inv-process-text strong {
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 0.1rem;
+}
+
+/* Notes box */
+.inv-notes-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* ── Invoice footer ──────────────────────────────────────────────────────── */
+.inv-footer {
+  padding: 0.85rem 1.5rem;
+  border-top: 1px solid #e8e8f0;
+  background: #f9fafb;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.inv-footer-note {
+  font-size: 0.72rem;
+  color: #6b7280;
+  max-width: 38ch;
+  line-height: 1.4;
+}
+
+.inv-footer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-invoice-close {
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-invoice-close:hover { opacity: 0.9; }
