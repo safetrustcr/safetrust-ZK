@@ -7,6 +7,7 @@ const noirPackages = [
 ];
 
 const nextConfig = {
+  output: "standalone",
   transpilePackages: ["@safetrust/zk-sdk"],
   // Route handlers must load Noir/bb from node_modules (nodejs WASM), not webpack's web bundle.
   experimental: {

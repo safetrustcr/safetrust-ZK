@@ -1,0 +1,71 @@
+version: "3.9"
+
+# ============================================================
+# SafeTrust ZK — Monolithic MVP
+#
+# Runs the full ZK demo stack in a single command:
+#   docker compose up --build
+#
+# Services:
+#   postgres  → localhost:5433  (ZK proof log + escrow tables only)
+#   demo      → localhost:3000  (Next.js booking demo)
+#
+# No Hasura, no webhook service, no Firebase — not needed for the MVP demo.
+# The three ZK tables in db/init.sql are everything the demo writes to.
+# ============================================================
+
+services:
+
+  # ── PostgreSQL — minimal ZK schema only ──────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: safetrust-zk-db
+    environment:
+      POSTGRES_DB:       safetrust_zk
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: zkdemo
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - zk_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d safetrust_zk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Next.js demo app ─────────────────────────────────────
+  demo:
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    container_name: safetrust-zk-demo
+    ports:
+      - "3000:3000"
+    environment:
+      # Stellar network
+      NEXT_PUBLIC_STELLAR_NETWORK: testnet
+
+      # TrustlessWork — falls back to mock automatically if unreachable
+      NEXT_PUBLIC_TRUSTLESS_API_URL: https://api.trustlesswork.com
+
+      # Database — connects to the postgres service above
+      DATABASE_URL: postgresql://postgres:zkdemo@postgres:5432/safetrust_zk
+
+      # ZK proof storage — writes to DB after each proof
+      ZK_ENABLED: "true"
+
+      # Wallet mode: Freighter (no Pollar key = Mode A)
+      # To enable Pollar: uncomment and fill in
+      # NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY: pub_testnet_xxx
+      # POLLAR_SECRET_KEY: sec_testnet_xxx
+
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  zk_pgdata:

@@ -8,6 +8,37 @@ Booking amounts, wallet balances, and milestone releases are hidden inside Noir 
 
 ---
 
+## Current Status
+
+| Layer | Status | Notes |
+|---|---|---|
+| `circuits/proof_of_funds` | ✅ Compiles + proves | `make prove-proof-of-funds` |
+| `circuits/private_escrow` | ✅ Compiles + proves | `make prove-private-escrow` |
+| `circuits/milestone_release` | ✅ Compiles + proves | `make prove-milestone-release` |
+| `sdk/` | ✅ Built + tested | `@safetrust/zk-sdk` — all 3 provers wired |
+| `contracts/escrow_verifier` | ✅ Soroban UltraHonk verifier | Rust, testnet-ready |
+| `demo/` | ✅ Running | Next.js 14, apartment booking flow |
+| `docker-compose.yml` | ✅ Monolithic | Postgres + demo in one command |
+| `db/init.sql` | ✅ Minimal schema | 3 tables only: escrows, milestones, zk_proof_log |
+| `ZK_ENABLED` hook | ✅ Implemented | backend-SafeTrust#4 — writes proofs to DB |
+
+---
+
+## Run Everything — One Command
+
+```bash
+git clone https://github.com/safetrustcr/safetrust-ZK.git
+cd safetrust-ZK
+docker compose up --build
+```
+
+- Demo → [http://localhost:3000](http://localhost:3000)
+- PostgreSQL → `localhost:5433` (db: `safetrust_zk`, user: `postgres`, pass: `zkdemo`)
+
+No backend-SafeTrust clone needed. No Hasura. No Firebase. The demo writes ZK proof hashes directly to the 3 tables in `db/init.sql`.
+
+---
+
 ## The Problem
 
 Every SafeTrust escrow today is fully transparent on Stellar:
@@ -30,6 +61,35 @@ Every SafeTrust escrow today is fully transparent on Stellar:
 │                                                     │
 │  📄 Receipt: Amount [HIDDEN 🔒] · Raw DB: ❌        │
 └─────────────────────────────────────────────────────┘
+```
+
+---
+
+## Minimal DB Schema (3 tables)
+
+The demo only needs these tables — all in `db/init.sql`:
+
+```
+trustless_work_escrows   ← ZK writes proof_hash + commitment to escrow_metadata JSONB
+escrow_milestones        ← ZK writes release_proof to metadata JSONB
+zk_proof_log             ← append-only audit trail of every proof event
+```
+
+No users table, no apartments table, no bids, no roles. Seed data in `demo/lib/seeds.ts` replaces all of that.
+
+**Verify proofs landed after booking:**
+
+```sql
+-- In psql or any Postgres client
+SELECT contract_id, escrow_metadata->>'zk_proof_hash' AS proof_hash,
+       escrow_metadata->>'zk_amount_commitment'        AS commitment
+FROM   public.trustless_work_escrows
+WHERE  escrow_metadata ? 'zk_proof_hash';
+
+-- Full audit trail
+SELECT circuit, proof_hash, commitment, created_at
+FROM   public.zk_proof_log
+ORDER BY created_at DESC;
 ```
 
 ---
@@ -58,65 +118,30 @@ Every SafeTrust escrow today is fully transparent on Stellar:
 
 ---
 
-## Prerequisites
+## Prerequisites (local dev only — not needed for Docker)
 
 ```
 Node.js ≥ 18    pnpm ≥ 9
 Nargo ≥ 0.30    noirup → noirup
 bb (matches)    bbup  → bbup
 Freighter ext   freighter.app
-Docker v2       full-stack only
 ```
 
 ---
 
-## Quick Start — Demo Only
+## Local Dev (without Docker)
 
 ```bash
-git clone https://github.com/safetrustcr/safetrust-ZK.git
-cd safetrust-ZK
 pnpm install
 
+# Terminal 1 — demo
 cp demo/.env.example demo/.env.local
-# No keys needed — Freighter works out of the box
-# TrustlessWork falls back to mock if unreachable
+pnpm --filter safetrust-zk-demo dev   # → localhost:3000
 
-pnpm --filter safetrust-zk-demo dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) → pick an apartment → connect Freighter → run all 5 pipeline steps → open **Escrow Receipt**.
-
----
-
-## Full Stack — Demo + Backend
-
-```bash
-# Terminal 1 — backend
-git clone https://github.com/safetrustcr/backend-SafeTrust.git
-cd backend-SafeTrust
-cp .env.example .env            # fill POSTGRES_PASSWORD, JWT_SECRET, EVENT_SECRET
-echo "ZK_ENABLED=true" >> .env  # activates proof hash storage
-docker compose up --build
-# Webhook → :3001  |  Hasura → :8080  |  Postgres → :5433
-
-# Terminal 2 — demo
-cd safetrust-ZK
-cp demo/.env.example demo/.env.local
-echo "NEXT_PUBLIC_TRUSTLESS_API_URL=http://localhost:3001" >> demo/.env.local
-pnpm --filter safetrust-zk-demo dev
-```
-
-**Verify proof hashes landed in Hasura:**
-
-```graphql
-query {
-  trustless_work_escrows(
-    where: { escrow_metadata: { _has_key: "zk_proof_hash" } }
-  ) {
-    contract_id
-    escrow_metadata
-  }
-}
+# Terminal 2 — circuits (optional)
+make compile-all
+make prove-proof-of-funds
+make test-circuits
 ```
 
 ---
@@ -124,25 +149,25 @@ query {
 ## Running the Circuits
 
 ```bash
-make compile-all          # compile all three circuits
-make prove-proof-of-funds # compile → execute → prove → verify
+make compile-all            # compile all three
+make prove-proof-of-funds   # compile → execute → prove → verify
 make prove-private-escrow
 make prove-milestone-release
-make test-circuits        # run nargo test suites
+make test-circuits          # nargo test suites
 ```
 
 Edit `circuits/<name>/Prover.toml` to test different amounts:
 
 ```toml
 # proof_of_funds/Prover.toml
-balance   = "20000000000"  # 2000 USDC (private)
-threshold = "4500000000"   # 450 USDC  (public)
+balance    = "20000000000"  # 2000 USDC (private)
+threshold  = "4500000000"   # 450 USDC  (public)
 randomness = "12345"
 ```
 
 ---
 
-## Running the SDK
+## SDK
 
 ```bash
 cd sdk && pnpm install && pnpm build && pnpm test
@@ -152,18 +177,14 @@ cd sdk && pnpm install && pnpm build && pnpm test
 import { SafeTrustZK } from '@safetrust/zk-sdk';
 const zk = new SafeTrustZK();
 
-// 1. Prove solvency — balance never leaves the circuit
 const { commitment } = await zk.proveOfFunds({
-  balance:   20_000_000_000n,  // stroops
-  threshold:  4_500_000_000n,
+  balance: 20_000_000_000n, threshold: 4_500_000_000n,
 });
 
-// 2. Commit amount privately
 const { commitment: escrowCommitment } = await zk.commitEscrowAmount({
   amount: 4_500_000_000n, guestAddress: 'G...', hostAddress: 'G...',
 });
 
-// 3. Prove milestone release
 await zk.proveMilestoneRelease({
   amountCommitment: escrowCommitment,
   totalAmount: 4_500_000_000n,
@@ -198,7 +219,7 @@ if (proof.valid) {
 | On-chain verifier | Soroban ([rs-soroban-ultrahonk](https://github.com/yugocabrio/rs-soroban-ultrahonk)) |
 | SDK | TypeScript — `@noir-lang/noir_js`, `@aztec/bb.js` |
 | Demo | Next.js 14 App Router |
-| Backend | Node.js + Hasura GraphQL + PostgreSQL |
+| Database | PostgreSQL 15 — 3 tables only (`db/init.sql`) |
 | Blockchain | Stellar Testnet · TrustlessWork API |
 | Wallet | Freighter — `@creit.tech/stellar-wallets-kit` v2.5.0 |
 
