@@ -17,10 +17,10 @@ Booking amounts, wallet balances, and milestone releases are hidden inside Noir 
 | `circuits/milestone_release` | ✅ Compiles + proves | `make prove-milestone-release` |
 | `sdk/` | ✅ Built + tested | `@safetrust/zk-sdk` — all 3 provers wired |
 | `contracts/escrow_verifier` | ✅ Soroban UltraHonk verifier | Rust, testnet-ready |
-| `demo/` | ✅ Running | Next.js 14, apartment booking flow |
+| `demo/` | ✅ Running | Next.js 14 · apartment booking flow · Freighter wallet |
 | `docker-compose.yml` | ✅ Monolithic | Postgres + demo in one command |
 | `db/init.sql` | ✅ Minimal schema | 3 tables only: escrows, milestones, zk_proof_log |
-| `ZK_ENABLED` hook | ✅ Implemented | backend-SafeTrust#4 — writes proofs to DB |
+| `ZK_ENABLED` hook | ✅ Implemented | Writes proof hashes to DB after each booking step |
 
 ---
 
@@ -33,9 +33,9 @@ docker compose up --build
 ```
 
 - Demo → [http://localhost:3000](http://localhost:3000)
-- PostgreSQL → `localhost:5433` (db: `safetrust_zk`, user: `postgres`, pass: `zkdemo`)
+- PostgreSQL → `localhost:5433` · db: `safetrust_zk` · user: `postgres` · pass: `zkdemo`
 
-No backend-SafeTrust clone needed. No Hasura. No Firebase. The demo writes ZK proof hashes directly to the 3 tables in `db/init.sql`.
+No backend-SafeTrust clone. No Hasura. No Firebase. The demo writes ZK proof hashes directly to the 3 tables in `db/init.sql`.
 
 ---
 
@@ -67,7 +67,7 @@ Every SafeTrust escrow today is fully transparent on Stellar:
 
 ## Minimal DB Schema (3 tables)
 
-The demo only needs these tables — all in `db/init.sql`:
+Only what the ZK pipeline actually reads and writes — defined in `db/init.sql`:
 
 ```
 trustless_work_escrows   ← ZK writes proof_hash + commitment to escrow_metadata JSONB
@@ -75,21 +75,21 @@ escrow_milestones        ← ZK writes release_proof to metadata JSONB
 zk_proof_log             ← append-only audit trail of every proof event
 ```
 
-No users table, no apartments table, no bids, no roles. Seed data in `demo/lib/seeds.ts` replaces all of that.
+No users, no apartments, no bids, no roles. Seed data in `demo/lib/seeds.ts` replaces all of that.
 
 **Verify proofs landed after booking:**
 
 ```sql
--- In psql or any Postgres client
-SELECT contract_id, escrow_metadata->>'zk_proof_hash' AS proof_hash,
-       escrow_metadata->>'zk_amount_commitment'        AS commitment
+SELECT contract_id,
+       escrow_metadata->>'zk_proof_hash'        AS proof_hash,
+       escrow_metadata->>'zk_amount_commitment'  AS commitment
 FROM   public.trustless_work_escrows
 WHERE  escrow_metadata ? 'zk_proof_hash';
 
 -- Full audit trail
 SELECT circuit, proof_hash, commitment, created_at
 FROM   public.zk_proof_log
-ORDER BY created_at DESC;
+ORDER  BY created_at DESC;
 ```
 
 ---
@@ -118,13 +118,14 @@ ORDER BY created_at DESC;
 
 ---
 
-## Prerequisites (local dev only — not needed for Docker)
+## Prerequisites
 
 ```
 Node.js ≥ 18    pnpm ≥ 9
-Nargo ≥ 0.30    noirup → noirup
-bb (matches)    bbup  → bbup
-Freighter ext   freighter.app
+Nargo ≥ 0.30    curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash && noirup
+bb (matches)    curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install | bash && bbup
+Freighter ext   freighter.app  (browser extension — for demo wallet)
+Docker v2       full-stack only
 ```
 
 ---
@@ -134,35 +135,41 @@ Freighter ext   freighter.app
 ```bash
 pnpm install
 
-# Terminal 1 — demo
-cp demo/.env.example demo/.env.local
-pnpm --filter safetrust-zk-demo dev   # → localhost:3000
+# 1. Build the SDK first (required by demo API routes)
+pnpm --filter @safetrust/zk-sdk build
 
-# Terminal 2 — circuits (optional)
-make compile-all
-make prove-proof-of-funds
-make test-circuits
+# 2. Configure and start demo
+cp demo/.env.example demo/.env.local
+# Delete demo/.env if it exists — it overrides .env.local
+pnpm --filter safetrust-zk-demo dev   # → localhost:3000
 ```
+
+**Important:** Delete `demo/.env` if it exists. Next.js reads both files and `.env` takes priority, which can activate Pollar mode unintentionally.
 
 ---
 
 ## Running the Circuits
 
+Requires `nargo` and `bb` installed (see Prerequisites above).
+
 ```bash
-make compile-all            # compile all three
-make prove-proof-of-funds   # compile → execute → prove → verify
-make prove-private-escrow
-make prove-milestone-release
-make test-circuits          # nargo test suites
+make compile-all             # compile all three circuits
+
+make prove-proof-of-funds    # compile → execute → prove → verify (Circuit 1)
+make prove-private-escrow    # compile → execute → prove → verify (Circuit 2)
+make prove-milestone-release # compile → execute → prove → verify (Circuit 3)
+
+make test-circuits           # run nargo test suites
+make test-all                # circuits + SDK + Soroban contract tests
 ```
 
 Edit `circuits/<name>/Prover.toml` to test different amounts:
 
 ```toml
-# proof_of_funds/Prover.toml
-balance    = "20000000000"  # 2000 USDC (private)
-threshold  = "4500000000"   # 450 USDC  (public)
-randomness = "12345"
+# circuits/proof_of_funds/Prover.toml
+balance    = "20000000000"  # 2000 USDC — guest balance (private)
+threshold  = "4500000000"   # 450 USDC  — booking amount (public threshold)
+randomness = "12345"        # blinding factor (private)
 ```
 
 ---
@@ -170,25 +177,34 @@ randomness = "12345"
 ## SDK
 
 ```bash
-cd sdk && pnpm install && pnpm build && pnpm test
+cd sdk
+pnpm install
+pnpm build   # required before running demo
+pnpm test
 ```
 
 ```ts
 import { SafeTrustZK } from '@safetrust/zk-sdk';
 const zk = new SafeTrustZK();
 
+// 1. Prove solvency — balance never leaves the circuit
 const { commitment } = await zk.proveOfFunds({
-  balance: 20_000_000_000n, threshold: 4_500_000_000n,
+  balance:   20_000_000_000n,  // stroops (private)
+  threshold:  4_500_000_000n,  // stroops (public threshold)
 });
 
+// 2. Commit booking amount privately
 const { commitment: escrowCommitment } = await zk.commitEscrowAmount({
-  amount: 4_500_000_000n, guestAddress: 'G...', hostAddress: 'G...',
+  amount:       4_500_000_000n,
+  guestAddress: 'G...',
+  hostAddress:  'G...',
 });
 
+// 3. Prove milestone release (70% check-in)
 await zk.proveMilestoneRelease({
   amountCommitment: escrowCommitment,
-  totalAmount: 4_500_000_000n,
-  milestonePct: 70,
+  totalAmount:      4_500_000_000n,
+  milestonePct:     70,
 });
 ```
 
@@ -218,10 +234,10 @@ if (proof.valid) {
 | ZK circuits | Noir / Barretenberg UltraHonk |
 | On-chain verifier | Soroban ([rs-soroban-ultrahonk](https://github.com/yugocabrio/rs-soroban-ultrahonk)) |
 | SDK | TypeScript — `@noir-lang/noir_js`, `@aztec/bb.js` |
-| Demo | Next.js 14 App Router |
+| Demo | Next.js 14 App Router · Freighter wallet |
 | Database | PostgreSQL 15 — 3 tables only (`db/init.sql`) |
 | Blockchain | Stellar Testnet · TrustlessWork API |
-| Wallet | Freighter — `@creit.tech/stellar-wallets-kit` v2.5.0 |
+| Wallet | Freighter — `@stellar/freighter-api` |
 
 ---
 
