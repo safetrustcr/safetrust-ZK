@@ -2,22 +2,6 @@
 
 import { useState } from "react";
 
-/**
- * @file demo/app/components/FreighterConnectButton.tsx
- *
- * Zero-account-required wallet connection via Freighter.
- * Used when NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY is not set.
- *
- * @creit.tech/stellar-wallets-kit v2.5.0 — BREAKING CHANGES vs earlier versions:
- *   - StellarWalletsKit is now a STATIC-only class (no `new`, no instance)
- *   - FREIGHTER_ID is exported from the separate module path, not the root
- *   - Must call StellarWalletsKit.setWallet(id) before StellarWalletsKit.getAddress()
- *   - Networks enum is exported from the root package
- *
- * Lazy-imported inside the click handler — never at module level — to avoid
- * SSR crashes from the kit accessing `window` at import time.
- */
-
 interface Props {
   onAddress: (address: string) => void;
 }
@@ -32,31 +16,27 @@ export function FreighterConnectButton({ onAddress }: Props) {
     setError(null);
 
     try {
-      // Lazy imports — keep inside the event handler, never at module level
-      const [{ StellarWalletsKit, Networks }, { FREIGHTER_ID }] = await Promise.all([
-        import("@creit.tech/stellar-wallets-kit"),
-        import("@creit.tech/stellar-wallets-kit/modules/freighter"),
-      ]);
+      // Use @stellar/freighter-api directly — most reliable approach
+      // Lazy import to avoid SSR window errors
+      const freighter = await import("@stellar/freighter-api");
 
-      // v2.5.0: fully static API — no instantiation needed
-      StellarWalletsKit.setNetwork(Networks.TESTNET);
-      StellarWalletsKit.setWallet(FREIGHTER_ID);
+      const connected = await freighter.isConnected();
+      if (!connected) {
+        setError("Freighter not found — install the extension at freighter.app");
+        return;
+      }
 
-      // fetchAddress requests the address directly from the Freighter extension
-      const { address: addr } = await StellarWalletsKit.fetchAddress();
+      await freighter.requestAccess();
+
+      const { address: addr } = await freighter.getAddress();
 
       setAddress(addr);
       onAddress(addr);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Connection failed";
-
-      const hint =
-        message.toLowerCase().includes("freighter") ||
-        message.toLowerCase().includes("not available")
-          ? "Freighter not found — install the extension at freighter.app"
-          : message;
-
-      setError(hint);
+      setError(message.includes("User declined") 
+        ? "Connection rejected — approve in Freighter and try again"
+        : message);
     } finally {
       setLoading(false);
     }

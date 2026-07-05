@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { FreighterConnectButton } from "./components/FreighterConnectButton";
+import logoSafetrust from '../app/img/logo-safetrust.png'; 
+import Image from "next/image";
 import { PollarWalletBar } from "./components/PollarWalletBar";
 import {
   SEED_APARTMENTS,
@@ -144,13 +146,19 @@ function ReceiptModal({
   const invoiceNo = `INV${apt.id.toUpperCase().replace("APT-", "")}-ZK`;
   const today     = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
-  // Process steps matching SafeTrust original flow
-  const processSteps = [
+// Process steps matching SafeTrust original flow
+function truncateHash(hash: string): string {
+  if (hash.length <= 20) return hash;
+  return `${hash.slice(0, 10)}…${hash.slice(-8)}`;
+}  
+
+const processSteps = [
     { label: "Property selected",      detail: apt.name,         done: true  },
     { label: "ZK proof of funds",      detail: "Range proof ✓",  done: Boolean(zk.fundsProofHash) },
     { label: "Escrow funded",          detail: zk.contractId ? truncateHash(zk.contractId) : "—", done: Boolean(zk.contractId) },
     { label: "Deposit released",       detail: allDone ? "Both milestones released" : checkinDone ? "Check-in released" : "Pending", done: allDone },
   ];
+
 
   return (
     <div className="invoice-modal-backdrop" onClick={onClose}>
@@ -159,8 +167,17 @@ function ReceiptModal({
         {/* ── Top bar ─────────────────────────────────────────────── */}
         <div className="inv-topbar">
           <div className="inv-logo">
-            <div className="inv-logo-icon">S</div>
-            SafeTrust
+            
+              {/* 2. Replace the text 'S' and 'SafeTrust' with the image */}
+              <Image
+                  src={logoSafetrust.src}
+                  alt="SafeTrust"
+                  width={28}
+                  height={28}
+                  priority
+                />
+  
+            
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span className="inv-status-badge badge-zk">🔐 ZK-Private</span>
@@ -436,10 +453,6 @@ function ReceiptModal({
   );
 }
 
-function truncateHash(hash: string): string {
-  if (hash.length <= 20) return hash;
-  return `${hash.slice(0, 10)}…${hash.slice(-8)}`;
-}
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 
@@ -794,3 +807,10 @@ export default function DemoPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
