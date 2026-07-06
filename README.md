@@ -6,6 +6,10 @@ Booking amounts, wallet balances, and milestone releases are hidden inside Noir 
 
 **[Stellar Hacks ZK Hackathon](https://dorahacks.io/hackathon/stellar-hacks-zk/detail) · Built on TrustlessWork · Powered by Noir / UltraHonk**
 
+## 📚 Docs: 
+- [Noir](https://noir-lang.org/docs/)· 
+- [ZK Proofs on Stellar](https://developers.stellar.org/docs/build/apps/zk).
+
 ---
 
 ## Current Status
